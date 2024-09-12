@@ -1,6 +1,6 @@
 import { Button, Container, Table, Alert, Input } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
-import { getAll, deleteStudent, resetStatusAndMessage, editStudent } from "../../redux/studentSlice";
+import { getAll, deleteStudent, resetStatusAndMessage, editStudent, searchStudentsByYear, searchStudents } from "../../redux/studentSlice";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ReactPaginate from 'react-paginate';
@@ -93,16 +93,68 @@ export default function Student() {
         const [year, month, day] = date.split('-');
         return `${day}-${month}-${year}`;
     };
+    // search
+    const [searchTerm, setSearchTerm] = useState('');
+    const [searchApi, setSearchApi] = useState('')
+    // biến search react
+    const filteredStudents = (students || []).filter(student => 
+        student.ten.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    const handle_search_api = () => {
+        dispatch(searchStudents(searchApi))
+    }
+    const [startYear, setStartYear] = useState(2000);
+    const [endYear, setEndYear] = useState(2001);
+    const handleSearchByYear = () => {
+        if(startYear&&endYear) {
+            dispatch(searchStudentsByYear({ startYear, endYear}))
+        }
+    }
     return (
         <div className="products">
            
             <Container>
+                <div className="my-3 d-flex">
+                    <Input 
+                        type="number"
+                        value={startYear}
+                        onChange={(e) => setStartYear(e.target.value)}
+                        className="mr-2"
+                    />
+                    <Input
+                        type="number"
+                        value={endYear}
+                        onChange={(e) => setEndYear(e.target.value)}
+                        className="mr-2"
+                    />
+                    <Button onClick={handleSearchByYear} >Search</Button>
+                </div>
                 {showMessage && (
-                    <Alert color={status === 200 || 201 ? "success" : "danger"}>
+                    <Alert color={status === 200 ? "success" : "danger"}>
                         {message}
                     </Alert>
                 )}
-
+                {error && (
+                    <Alert color="danger">
+                        <ul>
+                            {error.map((error, index) => (
+                                <li key={index}>{error}</li>
+                            ))}
+                        </ul>
+                    </Alert>
+                )}
+                <Input type="text" placeholder="Search react" className="my-3"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}/>
+                <Input type="text" placeholder="Search API ten và thành phố" className="my-3"
+                    value={searchApi}
+                    onChange={(e) => setSearchApi(e.target.value)}
+                    onKeyDown={(e) => {
+                        if(e.key === 'Enter') {
+                            handle_search_api()
+                        }
+                    }}
+                />
                 <Table hover>
                     <thead>
                         <tr>
