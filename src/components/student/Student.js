@@ -1,6 +1,6 @@
 import { Button, Container, Table, Alert, Input } from "reactstrap";
 import { useDispatch, useSelector } from 'react-redux';
-import { getAll, deleteStudent, resetStatusAndMessage, editStudent, searchStudentsByYear, searchStudents } from "../../redux/studentSlice";
+import { getAll, deleteStudent, resetStatusAndMessage, editStudent, searchStudentsByYear, searchStudents, search, searchStudentsXepLoai } from "../../redux/studentSlice";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ReactPaginate from 'react-paginate';
@@ -96,6 +96,8 @@ export default function Student() {
     // search
     const [searchTerm, setSearchTerm] = useState('');
     const [searchApi, setSearchApi] = useState('')
+    const [xepLoai, setXepLoai] = useState('Giỏi');
+    
     // biến search react
     const filteredStudents = (students || []).filter(student => 
         student.ten.toLowerCase().includes(searchTerm.toLowerCase())
@@ -103,6 +105,12 @@ export default function Student() {
     const handle_search_api = () => {
         dispatch(searchStudents(searchApi))
     }
+
+    // search xepLoai API
+    // const handleSearchXepLoai = (event) => {
+        
+    //     dispatch(searchStudentsXepLoai(xepLoai))
+    // }
     const [startYear, setStartYear] = useState(2000);
     const [endYear, setEndYear] = useState(2001);
     const handleSearchByYear = () => {
@@ -110,10 +118,37 @@ export default function Student() {
             dispatch(searchStudentsByYear({ startYear, endYear}))
         }
     }
+
+    const [studentSearch, setStudentSearch] = useState({"xepLoai":"Giỏi", "ten":"","thanhPho":"", "startYear": 2000, "endYear": 2003})
+    
+    useEffect(() => {
+        dispatch(search(studentSearch));
+    }, [studentSearch])
+
+    useEffect(() => {
+        dispatch(searchStudentsXepLoai(xepLoai))
+    }, [xepLoai])
     return (
         <div className="products">
            
             <Container>
+                <div>
+                        <Input
+                            id="xepLoai"
+                            name="xepLoai"
+                            type="select"
+                            value={xepLoai}
+                            onChange={(e) => {
+                                setXepLoai(e.target.value)
+                            }}
+                        >
+                            <option>Giỏi</option>
+                            <option>Khá</option>
+                            <option>Trung bình</option>
+                            <option>Yếu</option>
+                        </Input>
+                </div>
+
                 <div className="my-3 d-flex">
                     <Input 
                         type="number"
@@ -155,6 +190,49 @@ export default function Student() {
                         }
                     }}
                 />
+                <div className="searchAll">
+                    <div>
+                        <Input
+                            id="xepLoai"
+                            name="xepLoai"
+                            type="select"
+                            value={studentSearch.xepLoai}
+                            onChange={(e) => {
+                                setStudentSearch({...studentSearch, "xepLoai":e.target.value})
+                            }}
+                        >
+                            <option>Giỏi</option>
+                            <option>Khá</option>
+                            <option>Trung bình</option>
+                            <option>Yếu</option>
+                        </Input>
+                    </div>
+                    <div className="my-3 d-flex">
+                            <Input
+                                type="number"
+                                value={studentSearch.startYear}
+                                onChange={(e)=>{
+                                    setStudentSearch({...studentSearch,"startYear": e.target.value})
+                                }}
+                                className="mr-2"
+                            />
+                            <Input
+                                type="number"
+                                value={studentSearch.endYear}
+                                onChange={(e) => {
+                                    setStudentSearch({...studentSearch, "endYear": e.target.value})
+                                }}
+                                className="mr-2"
+                            />
+                            
+                    </div>
+                    <Input type="text" placeholder="Search API" className="my-3"
+                    value={studentSearch.ten}
+                    onChange={(e) => {
+                        setStudentSearch({...studentSearch, "ten": e.target.value})
+                    }}
+                    />  
+                </div>
                 <Table hover>
                     <thead>
                         <tr>

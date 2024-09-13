@@ -70,13 +70,23 @@ export const searchStudentsXepLoai = createAsyncThunk('student/searchStudentsXep
   const url = `${BASE_URL}/student/searchXepLoai`;
   try {
     const response = await axios.get(url, {
-      params: { "name": xepLoai},
+      params: { "xepLoai": xepLoai},
     });
     return response.data;
   } catch (error) {
     return thunkAPI.rejectWithValue(error.response.data); 
   }
 })
+
+export const search = createAsyncThunk('student/search', async ({xepLoai, ten, startYear, endYear}, thunkAPI) => {
+  const url = `${BASE_URL}/student/search?xepLoai=${xepLoai}&ten=${ten}&startYear=${startYear}&endYear=${endYear}`;
+  try {
+    const response = await axios.get(url);
+    return response.data
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response.data);
+  }
+});
 const studentSlice = createSlice({
   name: 'student',
   initialState: {
@@ -155,6 +165,15 @@ const studentSlice = createSlice({
         state.status = action.payload.status;
       })
       .addCase(searchStudentsXepLoai.rejected, (state, action) => {
+        state.status = action.payload.status
+        state.message = action.payload.message
+        state.error = action.payload.data;
+      })
+      .addCase(search.fulfilled, (state, action) => {
+        state.students = action.payload.data
+        state.status = action.payload.status
+      })
+      .addCase(search.rejected, (state, action) => {
         state.status = action.payload.status
         state.message = action.payload.message
         state.error = action.payload.data;
