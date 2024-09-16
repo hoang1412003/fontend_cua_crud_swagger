@@ -87,12 +87,37 @@ export const search = createAsyncThunk('student/search', async ({xepLoai, ten, s
     return thunkAPI.rejectWithValue(error.response.data);
   }
 });
+
+export const uploadImage = createAsyncThunk('student/uploadImage', async ({id, formData}, thunkAPI) => {
+  const url = `${BASE_URL}/student/uploads/${id}`;
+  try{
+    const response = await axios.post(url, formData, {
+      headers: {
+        'Content-Type':'multipart/form-data'
+      }
+    })
+    return response.data
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response.data)
+  }
+});
+
+export const getAllStudentDetail = createAsyncThunk('student/getAllStudentDetail', async (id, thunkAPI) => {
+  const url = `${BASE_URL}/student/getAllImage/${id}`;
+  try {
+    const response = await axios.get(url);
+    return response.data; // trả về dữ liệu từ phản hồi
+  } catch (error) {
+    return thunkAPI.rejectWithValue(error.response.data) // Trả về lỗi nếu có
+  }
+})
 const studentSlice = createSlice({
   name: 'student',
   initialState: {
     status: 'idle',
     error: null,
     students:null,
+    studentDetails: null,
     totalPages:10,
     message:"",
   },
@@ -105,6 +130,16 @@ const studentSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(getAllStudentDetail.fulfilled, (state, action) => {
+        state.status = action.payload.status
+        state.message = action.payload.message
+        state.studentDetails = action.payload.data
+      })
+      .addCase(getAllStudentDetail.rejected, (state, action) => {
+        state.status = action.payload.status
+        state.message = action.payload.message
+        state.error = action.payload.data
+      })
       .addCase(getAll.fulfilled, (state, action) => {
         state.students = action.payload.data.studentResponseList
         state.totalPages = action.payload.data.totalPages
@@ -174,6 +209,15 @@ const studentSlice = createSlice({
         state.status = action.payload.status
       })
       .addCase(search.rejected, (state, action) => {
+        state.status = action.payload.status
+        state.message = action.payload.message
+        state.error = action.payload.data;
+      })
+      .addCase(uploadImage.fulfilled, (state, action) => {
+        state.status = action.payload.status
+        state.message = action.payload.message
+      })
+      .addCase(uploadImage.rejected, (state, action) => {
         state.status = action.payload.status
         state.message = action.payload.message
         state.error = action.payload.data;
