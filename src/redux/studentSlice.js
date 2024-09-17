@@ -2,8 +2,8 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 // Thay đổi URL và cấu hình phù hợp với API của bạn
-const BASE_URL = 'http://localhost:8080/api/v1';
-
+// const BASE_URL = 'http://localhost:8080/api/v1';
+const BASE_URL = process.env.REACT_APP_API_URL;
 export const getAll= createAsyncThunk('student/getAll', async ({ currentPage, limit },thunkAPI) => {
   const url= BASE_URL+`/student/list?page=${currentPage}&size=${limit}`;
   try {

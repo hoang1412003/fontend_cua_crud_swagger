@@ -10,7 +10,7 @@ export default function StudentDetail() {
     const[files, setFiles] = useState([])
     const {studentDetails, message, error, status} = useSelector((state) => state.student);
     const [images, setImages] = useState({});
-
+    const BASE_URL = process.env.REACT_APP_API_URL;
     const handle_change = (e) => {
         setFiles(e.target.files)
     }
@@ -35,7 +35,11 @@ export default function StudentDetail() {
     }
     const fetchImage = async (imageUrl) => {
         try {
-            const response = await axios.get(`http://localhost:8080/api/v1/student/images/${imageUrl}`, {
+            // const response = await axios.get(`http://localhost:8080/api/v1/student/images/${imageUrl}`, {
+            //     responseType: 'blob' // Đảm bảo phản hồi trả về là Blob
+            // })
+
+            const response = await axios.get(`${BASE_URL}/student/images/${imageUrl}`, {
                 responseType: 'blob' // Đảm bảo phản hồi trả về là Blob
             })
             const imageOjectURL = URL.createObjectURL(response.data)
